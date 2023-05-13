@@ -3,7 +3,15 @@
          :else (+ (fib (- n 1)) (fib ( - n 2)))
 ))
 
-(println (fib 0))
-(println (fib 1))
-(println (fib 2))
-(println (fib 3))
+(defn result-str [n value]
+    (str "f(" n ")=" value )
+)
+
+(defn print-fib-table [n](
+    dotimes [x n] 
+    (
+        println (result-str x (fib x))
+    )
+))
+
+(print-fib-table 10)
