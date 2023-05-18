@@ -9,5 +9,14 @@
     )
 )
 
+(defn simple-loop []
+    (loop [x 0]
+        (when (< x 10)
+            (println x)
+            (recur (+ x 1))
+        )
+    )
+)
+
 
 (println (my-for))
