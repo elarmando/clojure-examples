@@ -47,15 +47,22 @@
     )
 )
 
+(defn next-symbol [symbol]
+    (if (= symbol "X")
+        "O"
+        "X"
+    )
+)
+
 (defn game-over [board] 
     false
 )
 
 (defn game-loop [] 
-        (loop [board init_board]
+        (loop [board init_board player-symbol "X"]
             (when (not (game-over board)) 
                 (draw board)
-                (recur (make_move (read-move) board "X")) 
+                (recur (make_move (read-move) board player-symbol) (next-symbol player-symbol)) 
             )
         )
 )
@@ -65,4 +72,4 @@
 ))
 
 (main)
-;;(println (read-move2))
+

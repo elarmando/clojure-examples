@@ -18,5 +18,16 @@
     )
 )
 
+;;multiple variables in loop
+(defn multiple-loop[]
+    (loop [x 0 flag true]
+        (when (< x 10)
+            (println (str x flag))
+            (recur (+ x 1) (not flag))
+        )
+    )
+)
 
-(println (my-for))
+
+(multiple-loop)
+;;(println (my-for))
