@@ -54,9 +54,27 @@
     )
 )
 
-(defn game-over [board] 
-    false
+(defn any_empty [s1 s2 s3]
+    (if (or (= s1 "") (= s2 "") (= s3 "") (= s1 " ") (= s2 " ") (= s3 " ")) true false)
 )
+
+(defn same_symbol [board col1 row1 col2 row2 col3 row3]
+    (let [s1 (get_symbol board col1 row1) s2 (get_symbol board col2 row2) s3 (get_symbol board col3 row3)]
+        (if (any_empty s1 s2 s3) false (= s1 s2 s3)
+        )
+    )
+)
+
+(defn check_horizontal [board]
+    (or (same_symbol board 0 0 1 0 2 0) (same_symbol board 0 1 1 1 2 1) (same_symbol board 0 2 1 2 2 2))
+)
+
+(defn game-over [board] 
+    (check_horizontal board)
+)
+
+
+
 
 (defn game-loop [] 
         (loop [board init_board player-symbol "X"]
@@ -68,8 +86,20 @@
 )
 
 (defn main [](
-    (game-loop)
+    game-loop
 ))
 
-(main)
+;;(main)
+
+(defn test_horizontal[]
+    (let [newBoard (make_move [0 0] init_board "X")]
+        (let [otherBoard (make_move [1 0] newBoard "X")]
+            (let [anotherBoard (make_move [2 0] otherBoard "X")]
+                (if (check_horizontal anotherBoard) "success" "fail")
+            )
+        )
+    )
+)
+
+(println (test_horizontal))
 
