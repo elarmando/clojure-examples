@@ -69,12 +69,17 @@
     (or (same_symbol board 0 0 1 0 2 0) (same_symbol board 0 1 1 1 2 1) (same_symbol board 0 2 1 2 2 2))
 )
 
+(defn check_vertical [board]
+    (or (same_symbol board 0 0 0 1 0 2) (same_symbol board 1 0 1 1 1 2) (same_symbol board 2 0 2 1 2 2))
+)
+
+(defn check_diagonal [board]
+    (or (same_symbol board 0 0 1 1 2 2) (same_symbol board 2 0 1 1 0 2))
+)
+
 (defn game-over [board] 
     (check_horizontal board)
 )
-
-
-
 
 (defn game-loop [] 
         (loop [board init_board player-symbol "X"]
@@ -91,15 +96,41 @@
 
 ;;(main)
 
-(defn test_horizontal[]
-    (let [newBoard (make_move [0 0] init_board "X")]
-        (let [otherBoard (make_move [1 0] newBoard "X")]
-            (let [anotherBoard (make_move [2 0] otherBoard "X")]
+(defn test_horizontal[row]
+    (let [newBoard (make_move [0 row] init_board "X")]
+        (let [otherBoard (make_move [1 row] newBoard "X")]
+            (let [anotherBoard (make_move [2 row] otherBoard "X")]
                 (if (check_horizontal anotherBoard) "success" "fail")
             )
         )
     )
 )
 
-(println (test_horizontal))
+(defn test_vertical []
+    (let [board1 (make_move [0 0] init_board "X")]
+        (let [board2 (make_move [0 1] board1 "X")]
+            (let [board3 (make_move [0 2] board2 "X")]
+                ;;(draw board3)
+                (if (check_vertical board3) "success" "fail")
+            )
+        )
+    )
+)
 
+(defn test_diagonal []
+    (let [board (make_move [0 0] init_board "X")]
+        (let [board2 (make_move [1 1] board "X")]
+            (let [board3 (make_move [2 2] board2 "X")]
+                (if (check_diagonal board3) "success" "fail")
+            )
+        )
+    )
+)
+
+;;(println (test_horizontal 0))
+;;(println (test_horizontal 1))
+;;(println (test_horizontal 2))
+;;(println (test_diagonal))
+
+
+(main)
