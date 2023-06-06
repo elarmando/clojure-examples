@@ -15,4 +15,7 @@
     (reduce + (sum-list n))
 )
 
-(println (problem1 1000))
+
+(println (reduce + (for [i (range 1 1000)] (if (or (= (rem i 3) 0) (= (rem i 5))) i 0))))
+
+;;(println (problem1 1000))

@@ -41,8 +41,24 @@
         )
 )
 
+;;(defn read-move []
+;;    (let [col (parse-int (read-line)) row (parse-int (read-line))]
+;;        [col row] 
+;;    )
+;;)
+
+(defn read-one-move [msg]
+    (do
+        (print msg)
+        (flush)
+        (let [move (parse-int (read-line))]
+            move
+        )
+    )
+)
+
 (defn read-move []
-    (let [col (parse-int (read-line)) row (parse-int (read-line))]
+    (let [col (read-one-move "Type your column: ") row (read-one-move "Type your row: ")]
         [col row] 
     )
 )
