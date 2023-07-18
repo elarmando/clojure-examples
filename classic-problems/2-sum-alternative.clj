@@ -1,24 +1,31 @@
 ;;given an unsorted integer array, find a pair with the given sum in it.
 ;;example array [1 2 3 4] and target 5, the pair is [2 3]
 
-(defn get-solution [x y array target]
-  (let [n1 (get array x) n2 (get array y)]
-    (if (= (+ n1 n2) target)
-      [n1 n2]
+(defn foreach_pair [n f]
+  (loop [x 0 y 1]
+    (when (and (< x n) (< y n) )
+      (let [goal (f x y)]
+        (if (some? goal)
+          goal
+          (if (and (>= y (dec n)))
+            (recur (+ x 1) (+ x 2))
+            (recur x (+ y 1))
+            ))))))
+
+(defn successfn [x y, array, target]
+  (let [num1 (get array x) num2 (get array y)]
+    (if (= (+ num1 num2) target)
+      [num1 num2]
       nil
-      )))
+    )))
 
 (defn two-sum [array target]
   (let [n (count array)]
-    (loop [x 0 y 1]
-      (when (and (< x n) (< y n))
-        (let [solution (get-solution x y array target)]
-          (if (some? solution)
-            solution ;;return solution
-            (if (>= y (- n 1)) ;;else keep iterations
-              (recur (inc x) (+ x 2))
-              (recur x (inc y)))
-            ))))))
+    (let [res (foreach_pair n #(successfn %1 %2 array target))]
+      (if (some? res)
+        (println (str "solution " res)) 
+        (println "no solution found")
+      ))))
 
-(println (two-sum [1 2 3 4 5 6 7] 10))
+(two-sum [1 2 3 5] 7)
 
