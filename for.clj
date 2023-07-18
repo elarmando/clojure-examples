@@ -44,6 +44,10 @@
         (println (str x "-" y)))
       (recur (inc i)))))
 
+(defn matrix-loop3 [n]
+  (for [i (range n) j (range n)]
+    [i j]))
+
 ;;(multiple-loop)
 ;;(println (my-for))
 
