@@ -28,6 +28,23 @@
     )
 )
 
+(defn matrix-loop [n]
+  (loop [x 0 y 0]
+    (when (< x n)
+      (println (str x "-" y))
 
-(multiple-loop)
+      (if (= y (- n 1))
+        (recur (inc x) 0)
+        (recur x (inc y))))))
+
+(defn matrix-loop2 [n]
+  (loop [i 0] 
+    (when (< i (* n n))
+      (let [x (quot i n) y (mod i n)]
+        (println (str x "-" y)))
+      (recur (inc i)))))
+
+;;(multiple-loop)
 ;;(println (my-for))
+
+(matrix-loop2 10)
