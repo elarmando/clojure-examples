@@ -28,6 +28,18 @@
     )
 )
 
+(defn multi-var-for []
+  (for [i (range 10) j (range 10)]
+    [i j]
+  )
+)
 
-(multiple-loop)
+(defn stair-for [n]
+  (for [i (range n) j (range i n)]
+    [i j]
+  )
+)
+
+;;(multiple-loop)
 ;;(println (my-for))
+(println (stair-for 5))
