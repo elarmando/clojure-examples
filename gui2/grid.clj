@@ -5,11 +5,19 @@
 
 (def rows 640)
 (def cols 640)
+(def size 20)
+
+(defn create-coordinates []
+  (for [i (range 0 rows size) j (range 0 cols size)]
+    [i j]))
 
 (defn create-panel []
   (proxy [JPanel] []
     (paintComponent [g]
-      (.drawString g "Hola" 0 16))))
+      (doseq [coord (create-coordinates)]
+        (let [r (get coord 0) c (get coord 1) oval-size (quot size 2)]
+          (.drawOval g r c oval-size oval-size)
+          (.fillOval g r c oval-size oval-size))))))
 
 (defn main []
   (let [frame (JFrame.) panel (create-panel)]
