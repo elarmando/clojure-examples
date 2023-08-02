@@ -1,5 +1,8 @@
 ;;Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.
 
+(ns duplicate 
+  (:require [clojure.test :refer :all]))
+
 (defn reducer [success pair]
   (if success
     true
@@ -19,11 +22,25 @@
       (let [pairs (gen-seq n array)]
         (reduce reducer false pairs)))))
 
-(println (contains-duplicate [3]))
-(println (contains-duplicate []))
-(println (contains-duplicate [1 1 3]))
-(println (contains-duplicate [1 2 3]))
-(println (contains-duplicate [1 2 1]))
+(deftest test-empty
+  (is (= (contains-duplicate []) false)))
+
+(deftest test-one-element
+  (is (= (contains-duplicate [3]) false)))
+
+(deftest test-basic-duplicate
+  (is (= (contains-duplicate [1 2 1]) true)))
+
+(deftest test-basic-non-duplicate 
+  (is (= (contains-duplicate [1 2 3]) false)))
+
+(run-tests)
+
+;;(println (contains-duplicate [3]))
+;;(println (contains-duplicate []))
+;;(println (contains-duplicate [1 1 3]))
+;;(println (contains-duplicate [1 2 3]))
+;;(println (contains-duplicate [1 2 1]))
 
 
 
