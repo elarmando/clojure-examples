@@ -19,16 +19,24 @@
 (defn get-world-index [y x ncols]
   (+ (* y ncols) x))
 
-(defn get-neighbors [y x world]
-  (let [nrows (:rows world) 
+(defn get-neighborhood [y x world]
+ (let [nrows (:rows world) 
         ncols (:cols world) 
         values (:values world)]
     (for [neighbor-array (get-neigbors-index)]
       (let [ny (+ y (get neighbor-array 0))
             nx (+ x (get neighbor-array 1))]
-        (if (and (>= ny 0) (>= nx 0) (< ny nrows) (< nx ncols))
-              (get values 0))))))
-          ;;(get values (get-world-index ny nx ncols))))))))
+        [ny nx]))))
+
+(defn is-in-grid? [y x nrows ncols]
+  (if (and (>= y 0) (>= x 0) (< y nrows) (< x ncols)) true false))
+
+(defn get-neighbors [y x world]
+  (let [nrows (:rows world) 
+        ncols (:cols world) 
+        values (:values world)]
+    (filter #(is-in-grid? (get %1 0) (get %1 1) nrows ncols) 
+            (get-neighborhood y x world))))
 
 (defn is-alive? [cell]
   (if (= (get cell 2) true) true false))
@@ -48,11 +56,15 @@
             (= live-neighs 3)                         true
             :else                                     false))))
 
+(defn evolve-values [nrows ncols world]
+  (for [i (range 0 nrows) j (range 0 ncols)]
+    [i j (should-live i j world)]))
+
 (defn evolve [world]
   (let [nr (:rows world) 
-        nc (:cols world)] 
-    (for [i (range 0 nr) j (range 0 nc)]
-      [i j (should-live i j world)])))
+        nc (:cols world)
+        new-values (evolve-values nr nc world)]
+    {:rows nr :cols nc :values new-values}))
 
 (defn create-values [nrows ncols]
   (for [i (range 0 nrows) j (range 0 ncols)]
@@ -62,20 +74,22 @@
   {:rows num-rows :cols num-cols :values (create-values num-rows num-cols)})
 
 (defn draw [g world]
-  (.clearRect g 0 0 screen-size-x screen-size-y)
-  (doseq [coord world]
-    (let [r (get coord 0) 
-          c (get coord 1) 
-          should-live (get coord 2)
-          px (* c size)
-          py (* r size)]
-      (if should-live 
-        (do 
-          (.drawOval g py px size size)
-          (.fillOval g py px size size))))))
+  (let [values (:values world)]
+    (.clearRect g 0 0 screen-size-x screen-size-y)
+    (doseq [coord values]
+      (let [r (get coord 0) 
+            c (get coord 1) 
+            should-live (get coord 2)
+            px (* c size)
+            py (* r size)]
+        (if should-live 
+          (do 
+            (.drawOval g py px size size)
+            (.fillOval g py px size size))))))
+  )
 
 (defn main []
-  (let [world (atom (create-world))
+  (let [world (atom (create-world rows cols))
         frame (JFrame.) 
         panel (proxy [JPanel] [] (paintComponent [g] (draw g @world)))]
     (doto frame
@@ -91,21 +105,7 @@
       (. Thread (sleep 1000))
       (recur))))
 
-
-;;(println (create-world 2 2))
-;;(println (get-world-index 2 1 5) "should be " 11)
-;;(println (get-world-index 0 2 5) "should be " 11)
-
-
-;;(let [world (create-world 3 3)]
-;;  (println world)
-;;  (let [ngs (get-neighbors 1 1 world)]
-;;    (println "neighbors " ngs)))
-
-(println 
-  (for [i (range 10)]
-    (if (= (mod i 2) 0)
-      i)))
+(main)
 
 
 
