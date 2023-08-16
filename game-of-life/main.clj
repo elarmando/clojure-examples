@@ -46,7 +46,10 @@
         count-neighs (count neighs)
         live-neighs (count (filter is-alive? neighs))
         death-neighs (- count-neighs live-neighs)
-        is-cell-alive (get world (get-world-index y x))]
+        cols (:cols world)
+        cells (:values world)
+        cell (get cells (get-world-index y x cols))
+        is-cell-alive (get cell 2)]
     (if is-cell-alive
       (cond ;;is alive rules
             (< live-neighs 2)                         false
@@ -105,7 +108,11 @@
       (. Thread (sleep 1000))
       (recur))))
 
-(main)
+;(main)
+
+(let [world (create-world 3 3)]
+  (println world)
+  (println (should-live 1 1 world)))
 
 
 
