@@ -73,6 +73,15 @@
   (for [i (range 0 nrows) j (range 0 ncols)]
     [i j (rand-live)]))
 
+(defn create-values-from-array [cols rows array]
+  (let [size (count array) expected-size (*cols rows)]
+    (if (not= size expected-size)
+      (throw (Exception. "not expected size array"))
+      (for [i (range 0 rows) j (range 0 cols)]
+        (let [index (+ (* i cols) j)]
+          [i j (get array index)]
+        )))))
+
 (defn create-world [num-rows num-cols]
   {:rows num-rows :cols num-cols :values (create-values num-rows num-cols)})
 
