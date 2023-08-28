@@ -4,10 +4,13 @@
         (java.awt Graphics2D))
 
 (def rows 50)
-(def cols 50)
+(def cols 150)
 (def size 20)
 (def screen-size-x (+ (* cols size) 20))
 (def screen-size-y (+ (* rows size) 40))
+
+(defn to-vector [s]
+  (into [] s))
 
 (defn rand-live []
   (let [random (rand-int 100)]
@@ -19,6 +22,9 @@
 (defn get-world-index [y x ncols]
   (+ (* y ncols) x))
 
+(defn is-in-grid? [y x nrows ncols]
+  (if (and (>= y 0) (>= x 0) (< y nrows) (< x ncols)) true false))
+
 (defn get-neighborhood [y x world]
  (let [nrows (:rows world) 
         ncols (:cols world) 
@@ -28,9 +34,6 @@
             nx (+ x (get neighbor-array 1))]
         [ny nx]))))
 
-(defn is-in-grid? [y x nrows ncols]
-  (if (and (>= y 0) (>= x 0) (< y nrows) (< x ncols)) true false))
-
 (defn get-neighbors [y x world]
   (let [nrows (:rows world) 
         ncols (:cols world) 
@@ -38,11 +41,19 @@
     (filter #(is-in-grid? (get %1 0) (get %1 1) nrows ncols) 
             (get-neighborhood y x world))))
 
+(defn get-neighbors-cells [y x world]
+  (let [values (:values world) cols (:cols world)]
+    (for [nbs-indexes (get-neighbors y x world)]
+      (let [ny (get nbs-indexes 0)
+            nx (get nbs-indexes 1)
+            world-pos (get-world-index ny nx cols)]
+        (get values world-pos)))))
+
 (defn is-alive? [cell]
   (if (= (get cell 2) true) true false))
 
 (defn should-live [y x world]
-  (let [neighs (get-neighbors y x world)
+  (let [neighs (get-neighbors-cells y x world)
         count-neighs (count neighs)
         live-neighs (count (filter is-alive? neighs))
         death-neighs (- count-neighs live-neighs)
@@ -60,8 +71,9 @@
             :else                                     false))))
 
 (defn evolve-values [nrows ncols world]
-  (for [i (range 0 nrows) j (range 0 ncols)]
-    [i j (should-live i j world)]))
+  (to-vector 
+    (for [i (range 0 nrows) j (range 0 ncols)]
+      [i j (should-live i j world)])))
 
 (defn evolve [world]
   (let [nr (:rows world) 
@@ -70,17 +82,18 @@
     {:rows nr :cols nc :values new-values}))
 
 (defn create-values [nrows ncols]
-  (for [i (range 0 nrows) j (range 0 ncols)]
-    [i j (rand-live)]))
+  (to-vector
+    (for [i (range 0 nrows) j (range 0 ncols)]
+      [i j (rand-live)])))
 
 (defn create-values-from-array [cols rows array]
-  (let [size (count array) expected-size (*cols rows)]
+  (let [size (count array) expected-size (* cols rows)]
     (if (not= size expected-size)
       (throw (Exception. "not expected size array"))
-      (for [i (range 0 rows) j (range 0 cols)]
-        (let [index (+ (* i cols) j)]
-          [i j (get array index)]
-        )))))
+      (to-vector 
+        (for [i (range 0 rows) j (range 0 cols)]
+          (let [index (+ (* i cols) j)]
+            [i j (get array index)]))))))
 
 (defn create-world [num-rows num-cols]
   {:rows num-rows :cols num-cols :values (create-values num-rows num-cols)})
@@ -114,14 +127,16 @@
     (loop []
       (swap! world evolve)
       (.repaint panel)
-      (. Thread (sleep 1000))
+      (. Thread (sleep 150))
       (recur))))
 
-;(main)
+(main)
 
-(let [world (create-world 3 3)]
-  (println world)
-  (println (should-live 1 1 world)))
-
+;(let [world (create-world 3 3)
+      ;new-values (create-values-from-array 3 3 [false false true true false true false false false])
+      ;new-world (assoc world :values new-values)
+      ;evolved-world (should-live 1 1 new-world)
+      ;]
+  ;(println evolved-world))
 
 
