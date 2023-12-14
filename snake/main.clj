@@ -1,12 +1,17 @@
 (import (javax.swing JFrame)
         (javax.swing JPanel)
         (java.awt Graphics)
-        (java.awt Graphics2D))
+        (java.awt Graphics2D)
+        (java.awt.event KeyAdapter)
+        (java.awt.event KeyEvent))
 
 (defn draw [g]
  (do
    (.drawOval g 300 300 100 100)
    (.fillOval g 300 300 100 100)))
+
+(defn onKeyStroke [e]
+  (println "Key :" (.getKeyChar e)))
 
 (defn main []
   (let [frame (JFrame.)
@@ -17,8 +22,13 @@
       (.add panel)
       (.setSize 600 600)
       (.setVisible true))
+    (doto panel
+      (.addKeyListener
+        (proxy [KeyAdapter] []
+          (keyPressed [e]
+            (onKeyStroke e))))
+          (.requestFocus))
     (.repaint panel)
-      
     ))
 
 (main)
