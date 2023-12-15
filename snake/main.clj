@@ -10,8 +10,18 @@
    (.drawOval g 300 300 100 100)
    (.fillOval g 300 300 100 100)))
 
+
+(defn getKeyPressed [e]
+  (let [code (.getKeyCode e)]
+    (cond
+      (= java.awt.event.KeyEvent/VK_UP code) "up"
+      (= java.awt.event.KeyEvent/VK_DOWN code) "down"
+      (= java.awt.event.KeyEvent/VK_RIGHT code) "right"
+      (= java.awt.event.KeyEvent/VK_LEFT code) "left"
+      :else "none")))
+
 (defn onKeyStroke [e]
-  (println "Key :" (.getKeyChar e)))
+  (println (getKeyPressed e))) 
 
 (defn main []
   (let [frame (JFrame.)
