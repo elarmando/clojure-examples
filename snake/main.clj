@@ -22,36 +22,45 @@
 (defn translate-circles [circles deltax deltay]
   (map #(translate-circle % deltax deltay) circles))
 
-(defn translate [world]
-  (let [dir (get world :direction)
-        deltax (get dir :x)
-        deltay (get dir :y)
+(defn translate [world deltax deltay]
+  (let [
         snake (get world :snake)
         new-snake (translate-circles snake deltax deltay)]
     (assoc world :snake new-snake)))
 
+(defn change_dir [world deltax deltay]
+  (assoc world :direction {:x deltax :y deltay}))
+
 (defn go-right [world]
-  (translate world 1 0))
+  (change_dir world 1 0))
 
 (defn go-left [world]
-  (translate world -1 0))
+  (change_dir world -1 0))
 
 (defn go-up [world]
-  (translate world 0 -1))
+  (change_dir world 0 -1))
 
 (defn go-down [world]
-  (translate world 0 1))
+  (change_dir world 0 1))
+
+(defn move [world]
+  (let [dir (get world :direction)
+       x (get dir :x)
+       y (get dir :y)]
+       (translate world x y)))
 
 (defn draw [world g]
  (do
-   (let [x (get world :x) 
-         y (get world :y)
+   (let [snake (get world :snake) 
          bounds (.getClipBounds g)
          width (.getWidth bounds)
          height (.getHeight bounds)]
-   (.clearRect g 0 0 width height)
-   (.drawOval g x y size size)
-   (.fillOval g x y size size))))
+    (.clearRect g 0 0 width height)
+    (doseq [dot snake]
+      (let [x (get dot :x)
+            y (get dot :y)]
+      (.drawOval g x y size size)
+      (.fillOval g x y size size))))))
 
 (defn getKeyPressed [e]
   (let [code (.getKeyCode e)]
@@ -71,6 +80,9 @@
      (= move "left") (go-left world)
      :else world)))
 
+(defn evolve [world]
+  (move world))
+
 (defn main []
   (let [world (atom (init-world))
         frame (JFrame.)
@@ -85,14 +97,18 @@
       (.addKeyListener
         (proxy [KeyAdapter] []
           (keyPressed [e]
-            (let [new-world "hol"]
-              (swap! world  (fn [w] (onKeyStroke w e)))
-              (.repaint panel))))))
+              (swap! world  (fn [w] (onKeyStroke w e)))))))
     (.repaint panel)
-    (.requestFocus panel)))
+    (.requestFocus panel)
+      (loop [i 0] 
+        (do
+        (swap! world evolve) 
+        (.repaint panel)
+        (. Thread (sleep 150))
+        (recur (inc i))))))
 
-;;(main)
+(main)
 
-(let [world (init-world)]
-  (println world)
-  (println (translate world)))
+;;(let [world (init-world)]
+ ;; (println world)
+  ;;(println (translate world)))
