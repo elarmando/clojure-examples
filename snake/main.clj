@@ -5,15 +5,19 @@
         (java.awt.event KeyAdapter)
         (java.awt.event KeyEvent))
 
-(def speedx 5)
-(def speedy 5)
+(def speedx 15)
+(def speedy 15)
 (def size 10)
 
 (defn to-vector [l]
   (into [] l))
 
 (defn init-world []
-  {:snake [{:x 100 :y 100}] :direction {:x 1 :y 0}})
+  {:snake [{:x 100 :y 100 } 
+            {:x (+ 100 speedy) :y 100} 
+            {:x (+ 100 (* 2 speedy)) :y 100}
+            {:x (+ 100 (* 3 speedy)) :y 100}] 
+   :direction {:x 1 :y 0}})
 
 (defn translate-circle [circle deltax deltay]
   (let [x (get circle :x) y (get circle :y)]
@@ -29,7 +33,8 @@
     (assoc world :snake new-snake)))
 
 (defn change_dir [world deltax deltay]
-  (assoc world :direction {:x deltax :y deltay}))
+  (let [new-world (assoc world :direction {:x deltax :y deltay})]
+    new-world))
 
 (defn go-right [world]
   (change_dir world 1 0))
@@ -43,14 +48,36 @@
 (defn go-down [world]
   (change_dir world 0 1))
 
+(defn create-new-dot [i snake new-snake direction]
+  (if (or (= i 0) (= 1 (count snake)) ) ;;first element or only one element
+    (let [old-dot (get snake 0)
+          x (get direction :x)
+          y (get direction :y)
+          new-dot (translate-circle old-dot x y)]
+          new-dot)
+  ;;else
+    (let [next-dot (get snake (dec i))
+          next-x (get next-dot :x)
+          next-y (get next-dot :y)]
+      {:x next-x :y next-y }
+    )
+  )
+)
+
 (defn move [world]
   (let [dir (get world :direction)
-       x (get dir :x)
-       y (get dir :y)]
-       (translate world x y)))
+       snake (get world :snake)
+       size (count snake)]
+       (loop [i 0 new-snake []]
+          (if (>= i size )
+            (assoc world :snake new-snake)
+          ;;else
+            (let [new-dot (create-new-dot i snake new-snake dir)]
+              (recur (inc i) (conj new-snake new-dot)))))))
 
 (defn draw [world g]
  (do
+  (println world)
    (let [snake (get world :snake) 
          bounds (.getClipBounds g)
          width (.getWidth bounds)
@@ -104,7 +131,7 @@
         (do
         (swap! world evolve) 
         (.repaint panel)
-        (. Thread (sleep 150))
+        (. Thread (sleep 300))
         (recur (inc i))))))
 
 (main)
