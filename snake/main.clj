@@ -7,13 +7,28 @@
 
 (def speedx 5)
 (def speedy 5)
+(def size 10)
+
+(defn to-vector [l]
+  (into [] l))
 
 (defn init-world []
- {:x 100 :y 100} )
+  {:snake [{:x 100 :y 100}] :direction {:x 1 :y 0}})
 
-(defn translate [world deltax deltay]
-  (let [x (get world :x) y (get world :y)]
+(defn translate-circle [circle deltax deltay]
+  (let [x (get circle :x) y (get circle :y)]
     {:x (+ (* speedx deltax) x) :y (+ (* speedy deltay) y)}))
+
+(defn translate-circles [circles deltax deltay]
+  (map #(translate-circle % deltax deltay) circles))
+
+(defn translate [world]
+  (let [dir (get world :direction)
+        deltax (get dir :x)
+        deltay (get dir :y)
+        snake (get world :snake)
+        new-snake (translate-circles snake deltax deltay)]
+    (assoc world :snake new-snake)))
 
 (defn go-right [world]
   (translate world 1 0))
@@ -35,8 +50,8 @@
          width (.getWidth bounds)
          height (.getHeight bounds)]
    (.clearRect g 0 0 width height)
-   (.drawOval g x y 50 50)
-   (.fillOval g x y 50 50))))
+   (.drawOval g x y size size)
+   (.fillOval g x y size size))))
 
 (defn getKeyPressed [e]
   (let [code (.getKeyCode e)]
@@ -76,4 +91,8 @@
     (.repaint panel)
     (.requestFocus panel)))
 
-(main)
+;;(main)
+
+(let [world (init-world)]
+  (println world)
+  (println (translate world)))
