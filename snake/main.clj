@@ -17,6 +17,7 @@
             {:x (+ 100 speedy) :y 100} 
             {:x (+ 100 (* 2 speedy)) :y 100}
             {:x (+ 100 (* 3 speedy)) :y 100}] 
+   :food [{:x 10 :y 10} {:x 500 :y 500}]
    :direction {:x 1 :y 0}})
 
 (defn translate-circle [circle deltax deltay]
@@ -81,13 +82,19 @@
    (let [snake (get world :snake) 
          bounds (.getClipBounds g)
          width (.getWidth bounds)
-         height (.getHeight bounds)]
+         height (.getHeight bounds)
+         food (get world :food)]
     (.clearRect g 0 0 width height)
     (doseq [dot snake]
       (let [x (get dot :x)
             y (get dot :y)]
       (.drawOval g x y size size)
-      (.fillOval g x y size size))))))
+      (.fillOval g x y size size)))
+    (doseq [dot-food food]
+      (let [x (get dot-food :x)
+            y (get dot-food :y)]
+        (.drawRect g x y size size) 
+        (.fillRect g x y size size))))))
 
 (defn getKeyPressed [e]
   (let [code (.getKeyCode e)]
