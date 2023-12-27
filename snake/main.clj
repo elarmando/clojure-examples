@@ -5,8 +5,8 @@
         (java.awt.event KeyAdapter)
         (java.awt.event KeyEvent))
 
-(def speedx 15)
-(def speedy 15)
+(def speedx 10)
+(def speedy 10)
 (def size 10)
 
 (defn to-vector [l]
@@ -17,7 +17,7 @@
             {:x (+ 100 speedy) :y 100} 
             {:x (+ 100 (* 2 speedy)) :y 100}
             {:x (+ 100 (* 3 speedy)) :y 100}] 
-   :food [{:x 10 :y 10} {:x 500 :y 500}]
+   :food [{:x 10 :y 10} {:x 10 :y 50} {:x 10 :y 80} {:x 500 :y 500}]
    :direction {:x 1 :y 0}})
 
 (defn translate-circle [circle deltax deltay]
@@ -49,6 +49,43 @@
 (defn go-down [world]
   (change_dir world 0 1))
 
+(defn get-tail-position [world]
+  (let [snake (get world :snake)
+        size (count snake)
+        tail (get snake (- size 1))]
+        {:x (get tail :x) :y (get tail :y)}))
+
+(defn same-position [dot food-dot]
+  (let [dotx (get dot :x)
+        doty (get dot :y)
+        foodx (get food-dot :x)
+        foody (get food-dot :y)]
+          (and (= dotx foodx) (= doty foody))))
+
+(defn get-collapsed-food [dot food-array]
+  (to-vector (filter #(same-position dot %) food-array)))
+
+(defn remove-food [food-item food]
+  (to-vector (remove #(same-position % food-item) food)))
+
+(defn add-dot [snake new-dot]
+  (conj snake new-dot)
+)
+
+(defn eat-food [world new-dot-position]
+  (let [snake (get world :snake)
+        food (get world :food)
+        head (get snake 0)
+        collapsed-food (get-collapsed-food head food)
+        ]
+        (if (> (count collapsed-food) 0)
+          (let [food-to-eat (get collapsed-food 0)
+                new-food (remove-food food-to-eat food)
+                new-snake (conj snake new-dot-position)]
+                (assoc world :snake new-snake :food new-food))
+          ;;else 
+            world)))
+
 (defn create-new-dot [i snake new-snake direction]
   (if (or (= i 0) (= 1 (count snake)) ) ;;first element or only one element
     (let [old-dot (get snake 0)
@@ -75,6 +112,12 @@
           ;;else
             (let [new-dot (create-new-dot i snake new-snake dir)]
               (recur (inc i) (conj new-snake new-dot)))))))
+
+(defn evolve [world]
+  (let [tail-pos (get-tail-position world)
+        new-world (move world)
+        new-world2 (eat-food new-world tail-pos)]
+       new-world2))
 
 (defn draw [world g]
  (do
@@ -114,8 +157,8 @@
      (= move "left") (go-left world)
      :else world)))
 
-(defn evolve [world]
-  (move world))
+
+  
 
 (defn main []
   (let [world (atom (init-world))
@@ -138,11 +181,13 @@
         (do
         (swap! world evolve) 
         (.repaint panel)
-        (. Thread (sleep 300))
+        (. Thread (sleep 250))
         (recur (inc i))))))
 
 (main)
 
-;;(let [world (init-world)]
- ;; (println world)
-  ;;(println (translate world)))
+
+;;(println (same-position {:x 0 :y 0} {:x 0 :y 1}))
+;;(println (same-position {:x 0 :y 1} {:x 0 :y 1}))
+;;(println (get-collapsed-food {:x 0 :y 0} [{:x 0 :y 1} {:x 0 :y 1}]))
+;;(println (remove-food {:x 0 :y 0} [{:x 0 :y 0}]))
