@@ -7,6 +7,8 @@
 
 (def speedx 10)
 (def speedy 10)
+(def screen-size-x 600)
+(def screen-size-y 600)
 (def size 10)
 
 (defn to-vector [l]
@@ -86,6 +88,23 @@
           ;;else 
             world)))
 
+(defn create-random-food-item []
+  (let [n-posx (quot screen-size-x 10)
+        n-posy (quot screen-size-x 10)
+        new-posx (* (rand-int n-posx) 10)
+        new-posy (* (rand-int n-posy) 10)]
+      {:x new-posx :y new-posy}))
+
+(defn create-food-if-needed [world]
+  (let [food (get world :food)
+        food_count (count food)]
+    (if (< food_count 1)
+     (let [new-food-item (create-random-food-item)
+           new-food (conj food new-food-item)]
+        (assoc world :food new-food))
+    ;;else
+      world))) 
+
 (defn create-new-dot [i snake new-snake direction]
   (if (or (= i 0) (= 1 (count snake)) ) ;;first element or only one element
     (let [old-dot (get snake 0)
@@ -116,8 +135,9 @@
 (defn evolve [world]
   (let [tail-pos (get-tail-position world)
         new-world (move world)
-        new-world2 (eat-food new-world tail-pos)]
-       new-world2))
+        new-world2 (eat-food new-world tail-pos)
+        new-world3 (create-food-if-needed new-world2)]
+       new-world3))
 
 (defn draw [world g]
  (do
@@ -168,7 +188,7 @@
       (.setDefaultCloseOperation
         javax.swing.WindowConstants/EXIT_ON_CLOSE)
       (.add panel)
-      (.setSize 600 600)
+      (.setSize screen-size-x screen-size-y)
       (.setVisible true))
     (doto panel
       (.addKeyListener
