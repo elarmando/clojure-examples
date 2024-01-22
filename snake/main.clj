@@ -15,10 +15,11 @@
   (into [] l))
 
 (defn init-world []
-  {:snake [{:x 100 :y 100 } 
-            {:x (+ 100 speedy) :y 100} 
-            {:x (+ 100 (* 2 speedy)) :y 100}
-            {:x (+ 100 (* 3 speedy)) :y 100}] 
+  {:snake [
+          {:x (+ 100 (* 3 speedy)) :y 100}
+          {:x (+ 100 (* 2 speedy)) :y 100}
+          {:x (+ 100 speedy) :y 100} 
+          {:x 100 :y 100 }] 
    :food [{:x 10 :y 10} {:x 10 :y 50} {:x 10 :y 80} {:x 500 :y 500}]
    :direction {:x 1 :y 0}})
 
@@ -121,6 +122,21 @@
   )
 )
 
+(defn dot-collapsed [i j snake]
+ (let [dot1 (get snake i)
+      dot2  (get snake j)]
+      (same-position dot1 dot2)))
+
+(defn count-collapsed [snake]
+  (let [size (count snake)
+        collapsed (for [i (range size) j (range (+ i 1) size)] (dot-collapsed i j snake))]
+        (count (filter #(= % true) collapsed))))
+
+(defn is-game-over [world]
+  (let [snake (get world :snake)
+       size (count snake)]
+       (if (> (count-collapsed snake) 0) true false)))
+
 (defn move [world]
   (let [dir (get world :direction)
        snake (get world :snake)
@@ -177,9 +193,6 @@
      (= move "left") (go-left world)
      :else world)))
 
-
-  
-
 (defn main []
   (let [world (atom (init-world))
         frame (JFrame.)
@@ -197,12 +210,15 @@
               (swap! world  (fn [w] (onKeyStroke w e)))))))
     (.repaint panel)
     (.requestFocus panel)
-      (loop [i 0] 
-        (do
-        (swap! world evolve) 
-        (.repaint panel)
-        (. Thread (sleep 250))
-        (recur (inc i))))))
+      (loop [i 0 game-over false] 
+        (if game-over 
+          (println "game-over")
+          ;;else
+          (do
+            (swap! world evolve) 
+            (.repaint panel)
+            (. Thread (sleep 250))
+            (recur (inc i) (is-game-over @world)))))))
 
 (main)
 
