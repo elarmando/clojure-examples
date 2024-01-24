@@ -106,13 +106,24 @@
     ;;else
       world))) 
 
+(defn keep-point-inside-box [pt]
+  (let [x (get pt :x) y (get pt :y)]
+    (cond 
+      (< x 0)             {:x screen-size-x :y y}
+      (> x screen-size-x) {:x 0 :y y}
+      (< y 0)             {:x x :y screen-size-y}
+      (> y screen-size-y) {:x x :y 0}
+      :else pt)))
+
+
 (defn create-new-dot [i snake new-snake direction]
   (if (or (= i 0) (= 1 (count snake)) ) ;;first element or only one element
     (let [old-dot (get snake 0)
           x (get direction :x)
           y (get direction :y)
-          new-dot (translate-circle old-dot x y)]
-          new-dot)
+          new-dot (translate-circle old-dot x y)
+          new-dot2 (keep-point-inside-box new-dot)]
+          new-dot2)
   ;;else
     (let [next-dot (get snake (dec i))
           next-x (get next-dot :x)
